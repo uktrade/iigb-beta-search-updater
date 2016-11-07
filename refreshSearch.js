@@ -6,7 +6,7 @@ var fs = require('fs-extra');
 var async = require('async');
 
 var path = process.argv[2];
-var languages = process.argv[3];
+var languages = process.argv[3].split(',');
 
 var searchDomainCN = process.env.AWS_CS_SEARCH_CN;
 var uploadDomainCN = process.env.AWS_CS_UPLOAD_CN;
@@ -106,7 +106,11 @@ async.parallel([
 				async.apply(getLatestDatabyVersion, 'us'),
 				async.apply(removePreviousVersion, 'us')
 			], function(err, result) {
-				console.log(result);
+				if (err) {
+					console.log(err);
+				} else {
+					console.log(result);
+				}
 			});
 		}
 	},
@@ -121,7 +125,11 @@ async.parallel([
 				async.apply(getLatestDatabyVersion, 'de'),
 				async.apply(removePreviousVersion, 'de')
 			], function(err, result) {
-				console.log(result);
+				if (err) {
+					console.log(err);
+				} else {
+					console.log(result);
+				}
 			});
 		}
 	}
@@ -134,7 +142,6 @@ async.parallel([
 	// removeTempFiles();
 });
 
-var version = 0;
 
 function getCurrentData(language, callback) {
 
@@ -144,34 +151,28 @@ function getCurrentData(language, callback) {
 		size: 10000,
 	};
 
-	if (language == 'cn') {
+	if (language == 'zh') {
 		csdSearchCN.search(searchParams, function(err, data) {
-			console.log(data);
 			if (err) {
 				console.log(err, err.stack);
 			} else {
-				console.log(data);
 				callback(null, data);
 			}
 		});
 	} else if (language == 'de') {
 		csdSearchDE.search(searchParams, function(err, data) {
-			console.log(data);
 			if (err) {
 				console.log(err, err.stack);
 			} else {
-				console.log(data);
 				callback(null, data);
 			}
 		});
 
-	} else if (language == 'us') {
+	} else if (language == 'en') {
 		csdSearchUS.search(searchParams, function(err, data) {
-			console.log(data);
 			if (err) {
 				console.log(err, err.stack);
 			} else {
-				console.log(data);
 				callback(null, data);
 			}
 		});
@@ -180,6 +181,7 @@ function getCurrentData(language, callback) {
 
 
 function getLatestVersion(data, callback) {
+	var version = 0;
 
 	var searchData = data.hits.hit;
 
@@ -187,12 +189,12 @@ function getLatestVersion(data, callback) {
 		if (searchData[i].fields.timestamp > version) version = searchData[i].fields.timestamp;
 	}
 	console.log('The current latest version of the index is ' + version);
-	callback(null);
+	callback(null, version);
 }
 
 
 
-function createJson(language, callback) {
+function createJson(language, version, callback) {
 	//create temp directory
 	fileHelper.createDirectories();
 
@@ -208,60 +210,58 @@ function createJson(language, callback) {
 	});
 	child.on('close', function(code) {
 		console.log('closing code: ' + code);
-		callback(null);
+		callback(null, version);
 	});
 }
 
-function getDatafromFile(language, callback) {
+function getDatafromFile(language, version, callback) {
 	fs.readFile('/tmp/' + language + '/1.json', 'utf8', function(err, data) {
 		if (err) {
 			callback(err);
 		} else {
 			var searchdata = data;
-			callback(null, searchdata);
+			callback(null, searchdata, version);
 		}
 	});
 }
 
-function uploadNewIndex(language, newdata, callback) {
+function uploadNewIndex(language, newdata, version, callback) {
 
 	var formattedData = prepareBatch(newdata);
 
 	var indexedData = addTimestamp(formattedData);
 
 	if (language == 'cn') {
-		csdUploadCN.uploadDocuments(batch, function(err, data) {
+		csdUploadCN.uploadDocuments(indexedData, function(err, data) {
 			if (err) console.log(err, err.stack); // an error occurred
-			else console.log("done removing previous version " + version);
-			callback(null, data);
+			else console.log("added new cn data to index");
+			callback(null, version);
 		});
 	} else if (language == 'de') {
-		csdUploadDE.uploadDocuments(batch, function(err, data) {
+		csdUploadDE.uploadDocuments(indexedData, function(err, data) {
 			if (err) console.log(err, err.stack); // an error occurred
-			else console.log("done removing previous version " + version);
-			callback(null, data);
+			else console.log("added new de data to index");
+			callback(null, version);
 		});
 
 	} else if (language == 'us') {
-		csdUploadUS.uploadDocuments(batch, function(err, data) {
+		csdUploadUS.uploadDocuments(indexedData, function(err, data) {
 			if (err) console.log(err, err.stack); // an error occurred
-			else console.log("done removing previous version " + version);
-			callback(null, data);
+			else console.log("added new us data to index");
+			callback(null, version);
 		});
 	}
 
 }
 
-function getLatestDatabyVersion(language, callback) {
-
+function getLatestDatabyVersion(language, version, callback) {
 	var searchParams = {
-		query: "(and (term field=language '" + language + "'))",
+		query: "(and (term field=timestamp '" + version + "'))",
 		queryParser: 'structured',
 		size: 10000,
 	};
 	if (language == 'cn') {
 		csdSearchCN.search(searchParams, function(err, data) {
-			console.log(data);
 			if (err) {
 				console.log(err, err.stack);
 			} else {
@@ -270,7 +270,6 @@ function getLatestDatabyVersion(language, callback) {
 		});
 	} else if (language == 'de') {
 		csdSearchDE.search(searchParams, function(err, data) {
-			console.log(data);
 			if (err) {
 				console.log(err, err.stack);
 			} else {
@@ -279,7 +278,6 @@ function getLatestDatabyVersion(language, callback) {
 		});
 	} else if (language == 'us') {
 		csdSearchUS.search(searchParams, function(err, data) {
-			console.log(data);
 			if (err) {
 				console.log(err, err.stack);
 			} else {
@@ -298,20 +296,20 @@ function removePreviousVersion(language, data, callback) {
 	if (language == 'cn') {
 		csdUploadCN.uploadDocuments(batch, function(err, data) {
 			if (err) console.log(err, err.stack); // an error occurred
-			else console.log("done removing previous version " + version);
+			else console.log("done removing previous version ");
 			callback(null, data);
 		});
 	} else if (language == 'de') {
 		csdUploadDE.uploadDocuments(batch, function(err, data) {
 			if (err) console.log(err, err.stack); // an error occurred
-			else console.log("done removing previous version " + version);
+			else console.log("done removing previous version ");
 			callback(null, data);
 		});
 
 	} else if (language == 'us') {
 		csdUploadUS.uploadDocuments(batch, function(err, data) {
 			if (err) console.log(err, err.stack); // an error occurred
-			else console.log("done removing previous version " + version);
+			else console.log("done removing previous version ");
 			callback(null, data);
 		});
 	}

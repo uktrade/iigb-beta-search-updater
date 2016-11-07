@@ -6,7 +6,7 @@ var fs = require('fs-extra');
 var async = require('async');
 
 var path = process.argv[2];
-var languages = process.argv[3];
+var languages = process.argv[3].split(',');
 
 var searchDomainCN = process.env.AWS_CS_SEARCH_CN;
 var uploadDomainCN = process.env.AWS_CS_UPLOAD_CN;

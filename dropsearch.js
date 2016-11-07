@@ -6,7 +6,7 @@ var fs = require('fs-extra');
 var async = require('async');
 
 var path = process.argv[2];
-var languages = process.argv[3];
+var languages = process.argv[3].split(',');
 
 var searchDomainCN = process.env.AWS_CS_SEARCH_CN;
 var uploadDomainCN = process.env.AWS_CS_UPLOAD_CN;
@@ -78,12 +78,13 @@ var csdSearchUS = new AWS.CloudSearchDomain({
 	}
 });
 
+console.log(isIncluded('de'));
 
 async.parallel([
 	function(callback) {
 		if (isIncluded('cn')) {
 			async.waterfall([
-				async.apply(getLatestDatabyVersion, 'cn'),
+				async.apply(getLatestDatabyVersion, 'zh'),
 				async.apply(removePreviousVersion, 'cn')
 			], function(err, result) {
 				console.log(result);
@@ -119,15 +120,13 @@ async.parallel([
 });
 
 function getLatestDatabyVersion(language, callback) {
-
 	var searchParams = {
 		query: "(and (term field=language '" + language + "'))",
 		queryParser: 'structured',
 		size: 10000,
 	};
-	if (language == 'cn') {
+	if (language == 'zh') {
 		csdSearchCN.search(searchParams, function(err, data) {
-			console.log(data);
 			if (err) {
 				console.log(err, err.stack);
 			} else {
@@ -136,7 +135,6 @@ function getLatestDatabyVersion(language, callback) {
 		});
 	} else if (language == 'de') {
 		csdSearchDE.search(searchParams, function(err, data) {
-			console.log(data);
 			if (err) {
 				console.log(err, err.stack);
 			} else {
@@ -145,7 +143,6 @@ function getLatestDatabyVersion(language, callback) {
 		});
 	} else if (language == 'en') {
 		csdSearchUS.search(searchParams, function(err, data) {
-			console.log(data);
 			if (err) {
 				console.log(err, err.stack);
 			} else {
@@ -222,8 +219,7 @@ function addTimestamp(params, callback) {
 }
 
 function isIncluded(language) {
-
-	if (languages.indexOf(language) !== -1) {
+	if (languages.indexOf(language) != -1) {
 		return true;
 	} else {
 		return false;
