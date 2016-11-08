@@ -60,4 +60,5 @@ To populate an index. To be used after dropping an index:
 node populateSearch.js path/to/build/folder us,cn,de
 ```
 
+NB If any country code is omitted from the comma separated list at the end of these commands, that index will not be changed.
 
