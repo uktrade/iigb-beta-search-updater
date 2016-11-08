@@ -42,13 +42,11 @@ cd iigb-beta-search-updater
 ### Running the application
 
 
-Commands for this application take the following format. The application will apply changes on the index languages added to the comma separated list included:
+To find the latest version of data, add the newest data from the build directory, then remove the previous version updating the search index.:
 
 ```bash
 node refreshSearch.js path/to/build/folder us,cn,de
 ```
-
-The above command will find the latest version of data, add the newest data from the build directory, then remove the previous version updating the search index.
 
 To drop the data from the index:
 
