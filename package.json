@@ -1,7 +1,7 @@
 {
   "name": "iigb-search-updater",
   "version": "1.0.0",
-  "description": "",
+  "description": "Utility app for managing IIGB search indexes",
   "main": "refreshSearch.js",
   "scripts": {
     "start": "npm install && node refreshSearch.js",
