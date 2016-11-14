@@ -8,14 +8,20 @@ var async = require('async');
 var path = process.argv[2];
 var languages = process.argv[3].split(',');
 
-var searchDomainCN = process.env.AWS_CS_SEARCH_CN;
-var uploadDomainCN = process.env.AWS_CS_UPLOAD_CN;
-var searchDomainDE = process.env.AWS_CS_SEARCH_DE;
-var uploadDomainDE = process.env.AWS_CS_UPLOAD_DE;
-var searchDomainUS = process.env.AWS_CS_SEARCH_US;
-var uploadDomainUS = process.env.AWS_CS_UPLOAD_US;
-var aws_access_key = process.env.AWS_ACCESS_KEY_ID_IIGB_SEARCH;
-var aws_secret_key = process.env.AWS_SECRET_ACCESS_KEY_IIGB_SEARCH;
+var ignoredFolder = '/enquiries/';
+
+var searchDomainIN = process.env.AWS_CS_SEARCH_IN_PROD;
+var uploadDomainIN = process.env.AWS_CS_UPLOAD_IN_PROD;
+var searchDomainINT = process.env.AWS_CS_SEARCH_INT_PROD;
+var uploadDomainINT = process.env.AWS_CS_UPLOAD_INT_PROD;
+var searchDomainCN = process.env.AWS_CS_SEARCH_CN_PROD;
+var uploadDomainCN = process.env.AWS_CS_UPLOAD_CN_PROD;
+var searchDomainDE = process.env.AWS_CS_SEARCH_DE_PROD;
+var uploadDomainDE = process.env.AWS_CS_UPLOAD_DE_PROD;
+var searchDomainUS = process.env.AWS_CS_SEARCH_US_PROD;
+var uploadDomainUS = process.env.AWS_CS_UPLOAD_US_PROD;
+var aws_access_key = process.env.AWS_ACCESS_KEY_ID_IIGB_SEARCH_UPDATER;
+var aws_secret_key = process.env.AWS_SECRET_ACCESS_KEY_IIGB_SEARCH_UPDATER;
 
 
 
@@ -78,6 +84,37 @@ var csdSearchUS = new AWS.CloudSearchDomain({
 	}
 });
 
+var csdUploadIN = new AWS.CloudSearchDomain({
+	endpoint: uploadDomainIN,
+	headers: {
+		"Accept": "*/*",
+		"Content-Type": 'application/json'
+	}
+});
+var csdSearchIN = new AWS.CloudSearchDomain({
+	endpoint: searchDomainIN,
+	headers: {
+		"Accept": "*/*",
+		"Content-Type": 'application/json'
+	}
+});
+
+var csdUploadINT = new AWS.CloudSearchDomain({
+	endpoint: uploadDomainINT,
+	headers: {
+		"Accept": "*/*",
+		"Content-Type": 'application/json'
+	}
+});
+
+var csdSearchINT = new AWS.CloudSearchDomain({
+	endpoint: searchDomainINT,
+	headers: {
+		"Accept": "*/*",
+		"Content-Type": 'application/json'
+	}
+});
+
 
 async.parallel([
 	function(callback) {
@@ -103,6 +140,28 @@ async.parallel([
 		}
 	},
 	function(callback) {
+		if (isIncluded('in')) {
+			async.waterfall([
+				async.apply(createJson, 'in'),
+				async.apply(getDatafromFile, 'in'),
+				async.apply(uploadNewIndex, 'in'),
+			], function(err, result) {
+				console.log(result);
+			});
+		}
+	},
+	function(callback) {
+		if (isIncluded('int')) {
+			async.waterfall([
+				async.apply(createJson, 'int'),
+				async.apply(getDatafromFile, 'int'),
+				async.apply(uploadNewIndex, 'int'),
+			], function(err, result) {
+				console.log(result);
+			});
+		}
+	},
+	function(callback) {
 		if (isIncluded('de')) {
 			async.waterfall([
 				async.apply(createJson, 'de'),
@@ -122,56 +181,14 @@ async.parallel([
 	// removeTempFiles();
 });
 
-function getCurrentData(language, callback) {
-
-	var searchParams = {
-		query: "(and (term field=language '" + language + "'))",
-		queryParser: 'structured',
-		size: 10000,
-	};
-
-	if (language == 'cn') {
-		csdSearchCN.search(searchParams, function(err, data) {
-			console.log(data);
-			if (err) {
-				console.log(err, err.stack);
-			} else {
-				console.log(data);
-				callback(null, data);
-			}
-		});
-	} else if (language == 'de') {
-		csdSearchDE.search(searchParams, function(err, data) {
-			console.log(data);
-			if (err) {
-				console.log(err, err.stack);
-			} else {
-				console.log(data);
-				callback(null, data);
-			}
-		});
-
-	} else if (language == 'us') {
-		csdSearchUS.search(searchParams, function(err, data) {
-			console.log(data);
-			if (err) {
-				console.log(err, err.stack);
-			} else {
-				console.log(data);
-				callback(null, data);
-			}
-		});
-	}
-}
-
 
 function createJson(language, callback) {
 	//create temp directory
 	fileHelper.createDirectories();
 
 
-	var child = exec("cs-import-documents --access-key " + aws_access_key + "  --secret-key " + aws_secret_key + " --source " + path + "/" + language + "/*/*/*/*/*.html " +
-		path + "/" + language + "/*/*/*/*.html " + path + "/" + language + "/*/*/*.html " + path + "/" + language + "/*/*.html  --output /tmp/" + language + " --verbose");
+	var child = exec("cs-import-documents --access-key " + aws_access_key + "  --secret-key " + aws_secret_key + " --source " + path + language + "/*/*/*/*/*.html " +
+		path + language + "/*/*/*/*.html " + path + language + "/*/*/*.html " + path + language + "/*/*.html  --output /tmp/" + language + " --verbose");
 
 	child.stdout.on('data', function(data) {
 		console.log('stdout: ' + data);
@@ -221,6 +238,18 @@ function uploadNewIndex(language, newdata, callback) {
 			else console.log("done adding new index for us");
 			callback(null, data);
 		});
+	} else if (language == 'in') {
+		csdUploadIN.uploadDocuments(indexedData, function(err, data) {
+			if (err) console.log(err, err.stack); // an error occurred
+			else console.log("done adding new index for in");
+			callback(null, data);
+		});
+	} else if (language == 'int') {
+		csdUploadINT.uploadDocuments(indexedData, function(err, data) {
+			if (err) console.log(err, err.stack); // an error occurred
+			else console.log("done adding new index for int");
+			callback(null, data);
+		});
 	}
 
 }
@@ -259,8 +288,22 @@ function addTimestamp(params, callback) {
 		newDocs[i].id = url + newDocs[i].fields.timestamp;
 		array.push(newDocs[i]);
 	}
-	newParams.documents = JSON.stringify(array);
+	var prunedArray = pruneContent(array);
+	newParams.documents = JSON.stringify(prunedArray);
 	return newParams;
+}
+
+function pruneContent(results) {
+	var prunedArray = [];
+
+	results.forEach(function(result) {
+		if ((result.fields.url).includes(ignoredFolder)) {
+			console.log('here');
+		} else {
+			prunedArray.push(result);
+		}
+	});
+	return prunedArray;
 }
 
 function isIncluded(language) {

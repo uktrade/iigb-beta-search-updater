@@ -29,6 +29,14 @@ var fileHelper = {
 			if (err) console.error(err);
 			else console.log('/tmp/de/ created');
 		});
+		mkdirp('/tmp/in/', function(err) {
+			if (err) console.error(err);
+			else console.log('/tmp/in/ created');
+		});
+		mkdirp('/tmp/int/', function(err) {
+			if (err) console.error(err);
+			else console.log('/tmp/int/ created');
+		});
 	},
 
 	removeDirectories: function() {
@@ -41,6 +49,14 @@ var fileHelper = {
 			console.log('removed temp dir');
 		});
 		fs.remove('/tmp/cn/', function(err) {
+			if (err) throw err;
+			console.log('removed temp dir');
+		});
+		fs.remove('/tmp/in/', function(err) {
+			if (err) throw err;
+			console.log('removed temp dir');
+		});
+		fs.remove('/tmp/int/', function(err) {
 			if (err) throw err;
 			console.log('removed temp dir');
 		});

@@ -8,14 +8,20 @@ var async = require('async');
 var path = process.argv[2];
 var languages = process.argv[3].split(',');
 
-var searchDomainCN = process.env.AWS_CS_SEARCH_CN;
-var uploadDomainCN = process.env.AWS_CS_UPLOAD_CN;
-var searchDomainDE = process.env.AWS_CS_SEARCH_DE;
-var uploadDomainDE = process.env.AWS_CS_UPLOAD_DE;
-var searchDomainUS = process.env.AWS_CS_SEARCH_US;
-var uploadDomainUS = process.env.AWS_CS_UPLOAD_US;
-var aws_access_key = process.env.AWS_ACCESS_KEY_ID_IIGB_SEARCH;
-var aws_secret_key = process.env.AWS_SECRET_ACCESS_KEY_IIGB_SEARCH;
+var ignoredFolder = '/enquiries/';
+
+var searchDomainIN = process.env.AWS_CS_SEARCH_IN_PROD;
+var uploadDomainIN = process.env.AWS_CS_UPLOAD_IN_PROD;
+var searchDomainINT = process.env.AWS_CS_SEARCH_INT_PROD;
+var uploadDomainINT = process.env.AWS_CS_UPLOAD_INT_PROD;
+var searchDomainCN = process.env.AWS_CS_SEARCH_CN_PROD;
+var uploadDomainCN = process.env.AWS_CS_UPLOAD_CN_PROD;
+var searchDomainDE = process.env.AWS_CS_SEARCH_DE_PROD;
+var uploadDomainDE = process.env.AWS_CS_UPLOAD_DE_PROD;
+var searchDomainUS = process.env.AWS_CS_SEARCH_US_PROD;
+var uploadDomainUS = process.env.AWS_CS_UPLOAD_US_PROD;
+var aws_access_key = process.env.AWS_ACCESS_KEY_ID_IIGB_SEARCH_UPDATER;
+var aws_secret_key = process.env.AWS_SECRET_ACCESS_KEY_IIGB_SEARCH_UPDATER;
 
 
 
@@ -79,11 +85,44 @@ var csdSearchUS = new AWS.CloudSearchDomain({
 });
 
 
+var csdUploadIN = new AWS.CloudSearchDomain({
+	endpoint: uploadDomainIN,
+	headers: {
+		"Accept": "*/*",
+		"Content-Type": 'application/json'
+	}
+});
+
+var csdSearchIN = new AWS.CloudSearchDomain({
+	endpoint: searchDomainIN,
+	headers: {
+		"Accept": "*/*",
+		"Content-Type": 'application/json'
+	}
+});
+
+var csdUploadINT = new AWS.CloudSearchDomain({
+	endpoint: uploadDomainINT,
+	headers: {
+		"Accept": "*/*",
+		"Content-Type": 'application/json'
+	}
+});
+
+var csdSearchINT = new AWS.CloudSearchDomain({
+	endpoint: searchDomainINT,
+	headers: {
+		"Accept": "*/*",
+		"Content-Type": 'application/json'
+	}
+});
+
+
 async.parallel([
 	function(callback) {
 		if (isIncluded('cn')) {
 			async.waterfall([
-				async.apply(getCurrentData, 'zh'),
+				async.apply(getCurrentData, 'cn'),
 				getLatestVersion,
 				async.apply(createJson, 'cn'),
 				async.apply(getDatafromFile, 'cn'),
@@ -98,7 +137,7 @@ async.parallel([
 	function(callback) {
 		if (isIncluded('us')) {
 			async.waterfall([
-				async.apply(getCurrentData, 'en'),
+				async.apply(getCurrentData, 'us'),
 				getLatestVersion,
 				async.apply(createJson, 'us'),
 				async.apply(getDatafromFile, 'us'),
@@ -132,6 +171,44 @@ async.parallel([
 				}
 			});
 		}
+	},
+	function(callback) {
+		if (isIncluded('in')) {
+			async.waterfall([
+				async.apply(getCurrentData, 'in'),
+				getLatestVersion,
+				async.apply(createJson, 'in'),
+				async.apply(getDatafromFile, 'in'),
+				async.apply(uploadNewIndex, 'in'),
+				async.apply(getLatestDatabyVersion, 'in'),
+				async.apply(removePreviousVersion, 'in')
+			], function(err, result) {
+				if (err) {
+					console.log(err);
+				} else {
+					console.log(result);
+				}
+			});
+		}
+	},
+	function(callback) {
+		if (isIncluded('int')) {
+			async.waterfall([
+				async.apply(getCurrentData, 'int'),
+				getLatestVersion,
+				async.apply(createJson, 'int'),
+				async.apply(getDatafromFile, 'int'),
+				async.apply(uploadNewIndex, 'int'),
+				async.apply(getLatestDatabyVersion, 'int'),
+				async.apply(removePreviousVersion, 'int')
+			], function(err, result) {
+				if (err) {
+					console.log(err);
+				} else {
+					console.log(result);
+				}
+			});
+		}
 	}
 ], function(err, results) {
 	if (err) {
@@ -151,7 +228,7 @@ function getCurrentData(language, callback) {
 		size: 10000,
 	};
 
-	if (language == 'zh') {
+	if (language == 'cn') {
 		csdSearchCN.search(searchParams, function(err, data) {
 			if (err) {
 				console.log(err, err.stack);
@@ -168,8 +245,24 @@ function getCurrentData(language, callback) {
 			}
 		});
 
-	} else if (language == 'en') {
+	} else if (language == 'us') {
 		csdSearchUS.search(searchParams, function(err, data) {
+			if (err) {
+				console.log(err, err.stack);
+			} else {
+				callback(null, data);
+			}
+		});
+	} else if (language == 'in') {
+		csdSearchIN.search(searchParams, function(err, data) {
+			if (err) {
+				console.log(err, err.stack);
+			} else {
+				callback(null, data);
+			}
+		});
+	} else if (language == 'int') {
+		csdSearchINT.search(searchParams, function(err, data) {
 			if (err) {
 				console.log(err, err.stack);
 			} else {
@@ -197,7 +290,6 @@ function getLatestVersion(data, callback) {
 function createJson(language, version, callback) {
 	//create temp directory
 	fileHelper.createDirectories();
-
 
 	var child = exec("cs-import-documents --access-key " + aws_access_key + "  --secret-key " + aws_secret_key + " --source " + path + "/" + language + "/*/*/*/*/*.html " +
 		path + "/" + language + "/*/*/*/*.html " + path + "/" + language + "/*/*/*.html " + path + "/" + language + "/*/*.html  --output /tmp/" + language + " --verbose");
@@ -250,6 +342,18 @@ function uploadNewIndex(language, newdata, version, callback) {
 			else console.log("added new us data to index");
 			callback(null, version);
 		});
+	} else if (language == 'in') {
+		csdUploadIN.uploadDocuments(indexedData, function(err, data) {
+			if (err) console.log(err, err.stack); // an error occurred
+			else console.log("added new us data to index");
+			callback(null, version);
+		});
+	} else if (language == 'int') {
+		csdUploadINT.uploadDocuments(indexedData, function(err, data) {
+			if (err) console.log(err, err.stack); // an error occurred
+			else console.log("added new us data to index");
+			callback(null, version);
+		});
 	}
 
 }
@@ -284,6 +388,22 @@ function getLatestDatabyVersion(language, version, callback) {
 				callback(null, data.hits.hit);
 			}
 		});
+	} else if (language == 'in') {
+		csdSearchIN.search(searchParams, function(err, data) {
+			if (err) {
+				console.log(err, err.stack);
+			} else {
+				callback(null, data.hits.hit);
+			}
+		});
+	} else if (language == 'int') {
+		csdSearchINT.search(searchParams, function(err, data) {
+			if (err) {
+				console.log(err, err.stack);
+			} else {
+				callback(null, data.hits.hit);
+			}
+		});
 	}
 }
 
@@ -308,6 +428,18 @@ function removePreviousVersion(language, data, callback) {
 
 	} else if (language == 'us') {
 		csdUploadUS.uploadDocuments(batch, function(err, data) {
+			if (err) console.log(err, err.stack); // an error occurred
+			else console.log("done removing previous version ");
+			callback(null, data);
+		});
+	} else if (language == 'in') {
+		csdUploadIN.uploadDocuments(batch, function(err, data) {
+			if (err) console.log(err, err.stack); // an error occurred
+			else console.log("done removing previous version ");
+			callback(null, data);
+		});
+	} else if (language == 'int') {
+		csdUploadINT.uploadDocuments(batch, function(err, data) {
 			if (err) console.log(err, err.stack); // an error occurred
 			else console.log("done removing previous version ");
 			callback(null, data);
@@ -337,6 +469,19 @@ function prepareBatch(results) {
 	return params;
 }
 
+function pruneContent(results) {
+	var prunedArray = [];
+
+	results.forEach(function(result) {
+		if ((result.fields.url).includes(ignoredFolder)) {
+			console.log('pruning folders');
+		} else {
+			prunedArray.push(result);
+		}
+	});
+	return prunedArray;
+}
+
 function addTimestamp(params, callback) {
 
 	var newDocs = JSON.parse(params.documents);
@@ -349,7 +494,8 @@ function addTimestamp(params, callback) {
 		newDocs[i].id = url + newDocs[i].fields.timestamp;
 		array.push(newDocs[i]);
 	}
-	newParams.documents = JSON.stringify(array);
+	var prunedArray = pruneContent(array);
+	newParams.documents = JSON.stringify(prunedArray);
 	return newParams;
 }
 
