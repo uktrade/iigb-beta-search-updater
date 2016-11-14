@@ -25,6 +25,10 @@ Environment Variables Set for:
 - AWS_CS_UPLOAD_DE_PROD;
 - AWS_CS_SEARCH_US_PROD;
 - AWS_CS_UPLOAD_US_PROD;
+- AWS_CS_SEARCH_IN_PROD;
+- AWS_CS_UPLOAD_IN_PROD;
+- AWS_CS_SEARCH_INT_PROD;
+- AWS_CS_UPLOAD_INT_PROD;
 
 
 You'll need both search permission and document upload permission.
