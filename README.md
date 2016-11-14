@@ -17,14 +17,14 @@ In order to run the tool locally in development you'll need the following :
 
 Environment Variables Set for:
 
-- AWS_ACCESS_KEY_ID_IIGB_SEARCH;
-- AWS_SECRET_ACCESS_KEY_IIGB_SEARCH;
-- AWS_CS_SEARCH_CN;
-- AWS_CS_UPLOAD_CN;
-- AWS_CS_SEARCH_DE;
-- AWS_CS_UPLOAD_DE;
-- AWS_CS_SEARCH_US;
-- AWS_CS_UPLOAD_US;
+- AWS_ACCESS_KEY_ID_IIGB_SEARCH_UPDATER;
+- AWS_SECRET_ACCESS_KEY_IIGB_SEARCH_UPDATER;
+- AWS_CS_SEARCH_CN_PROD;
+- AWS_CS_UPLOAD_CN_PROD;
+- AWS_CS_SEARCH_DE_PROD;
+- AWS_CS_UPLOAD_DE_PROD;
+- AWS_CS_SEARCH_US_PROD;
+- AWS_CS_UPLOAD_US_PROD;
 
 
 You'll need both search permission and document upload permission.
