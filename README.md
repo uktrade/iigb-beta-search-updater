@@ -45,19 +45,19 @@ cd iigb-beta-search-updater
 To find the latest version of data, add the newest data from the build directory, then remove the previous version updating the search index.:
 
 ```bash
-node refreshSearch.js path/to/build/folder us,cn,de
+node refreshSearch.js iigb-beta-website/build/ us,cn,de,in,int
 ```
 
-To drop the data from the index:
+To drop the data from an index:
 
 ```bash
-node dropSearch.js path/to/build/folder us,cn,de
+node dropSearch.js iigb-beta-website/build/ us,cn,de,in,int
 ```
 
-To populate an index. To be used after dropping an index:
+To populate an empty index. To be used after dropping an index:
 
 ```bash
-node populateSearch.js path/to/build/folder us,cn,de
+node populateSearch.js iigb-beta-website/build/ us,cn,de,in,int
 ```
 
 NB If any country code is omitted from the comma separated list at the end of these commands, that index will not be changed.
