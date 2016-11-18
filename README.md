@@ -14,6 +14,7 @@ In order to run the tool locally in development you'll need the following :
 
 - [Node.js](https://nodejs.org/en/)
 - [Git](https://git-scm.com/downloads) 
+- [AWS CLI](http://docs.aws.amazon.com/cli/latest/userguide/installing.html#install-bundle-other-os)
 
 Environment Variables Set for:
 
