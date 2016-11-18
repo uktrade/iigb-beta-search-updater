@@ -17,18 +17,10 @@ In order to run the tool locally in development you'll need the following :
 
 Environment Variables Set for:
 
+- AWS_CS_SEARCH;
+- AWS_CS_UPLOAD;
 - AWS_ACCESS_KEY_ID_IIGB_SEARCH_UPDATER;
 - AWS_SECRET_ACCESS_KEY_IIGB_SEARCH_UPDATER;
-- AWS_CS_SEARCH_CN_PROD;
-- AWS_CS_UPLOAD_CN_PROD;
-- AWS_CS_SEARCH_DE_PROD;
-- AWS_CS_UPLOAD_DE_PROD;
-- AWS_CS_SEARCH_US_PROD;
-- AWS_CS_UPLOAD_US_PROD;
-- AWS_CS_SEARCH_IN_PROD;
-- AWS_CS_UPLOAD_IN_PROD;
-- AWS_CS_SEARCH_INT_PROD;
-- AWS_CS_UPLOAD_INT_PROD;
 
 
 You'll need both search permission and document upload permission.
@@ -46,23 +38,20 @@ cd iigb-beta-search-updater
 ### Running the application
 
 
-To find the latest version of data, add the newest data from the build directory, then remove the previous version updating the search index.:
+To find the latest version of data, add the newest data from the build directory, then remove the previous versions updating the search index.:
 
 ```bash
-node refreshSearch.js iigb-beta-website/build/ us,cn,de,in,int
+node refreshSearch.js iigb-beta-website/build/
 ```
 
 To drop the data from an index:
 
 ```bash
-node dropSearch.js iigb-beta-website/build/ us,cn,de,in,int
+node dropSearch.js iigb-beta-website/build/ 
 ```
 
 To populate an empty index. To be used after dropping an index:
 
 ```bash
-node populateSearch.js iigb-beta-website/build/ us,cn,de,in,int
+node populateSearch.js iigb-beta-website/build/ 
 ```
-
-NB If any country code is omitted from the comma separated list at the end of these commands, that index will not be changed.
-
