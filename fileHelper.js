@@ -16,49 +16,17 @@ var fileHelper = {
 		return results;
 	},
 
-	createDirectories: function() {
-		mkdirp('/tmp/cn/', function(err) {
+	createDirectories: function(language) {
+		mkdirp('/tmp/' + language + '/', function(err) {
 			if (err) console.error(err);
-			else console.log('/tmp/cn/ created');
-		});
-		mkdirp('/tmp/us/', function(err) {
-			if (err) console.error(err);
-			else console.log('/tmp/us/ created');
-		});
-		mkdirp('/tmp/de/', function(err) {
-			if (err) console.error(err);
-			else console.log('/tmp/de/ created');
-		});
-		mkdirp('/tmp/in/', function(err) {
-			if (err) console.error(err);
-			else console.log('/tmp/in/ created');
-		});
-		mkdirp('/tmp/int/', function(err) {
-			if (err) console.error(err);
-			else console.log('/tmp/int/ created');
+			else console.log('/tmp/' + language + '/ created');
 		});
 	},
 
-	removeDirectories: function() {
-		fs.remove('/tmp/us/', function(err) {
+	removeDirectories: function(language) {
+		fs.remove('/tmp/' + language + '/', function(err) {
 			if (err) throw err;
-			console.log('removed temp dir');
-		});
-		fs.remove('/tmp/de/', function(err) {
-			if (err) throw err;
-			console.log('removed temp dir');
-		});
-		fs.remove('/tmp/cn/', function(err) {
-			if (err) throw err;
-			console.log('removed temp dir');
-		});
-		fs.remove('/tmp/in/', function(err) {
-			if (err) throw err;
-			console.log('removed temp dir');
-		});
-		fs.remove('/tmp/int/', function(err) {
-			if (err) throw err;
-			console.log('removed temp dir');
+			console.log('removed temp ' + language + 'dir');
 		});
 	}
 };
