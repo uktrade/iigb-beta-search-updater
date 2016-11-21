@@ -14,8 +14,8 @@ var privacyFolder = '/privacy-policy/';
 
 var searchDomain = process.env.AWS_CS_SEARCH;
 var uploadDomain = process.env.AWS_CS_UPLOAD;
-var aws_access_key = process.env.AWS_ACCESS_KEY_ID_IIGB_SEARCH_UPDATER;
-var aws_secret_key = process.env.AWS_SECRET_ACCESS_KEY_IIGB_SEARCH_UPDATER;
+var aws_access_key = process.env.AWS_ACCESS_KEY;
+var aws_secret_key = process.env.AWS_SECRET_ACCESS_KEY;
 
 
 AWS.config.apiVersions = {
