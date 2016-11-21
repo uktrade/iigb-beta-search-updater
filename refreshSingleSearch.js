@@ -55,7 +55,11 @@ async.parallel([
 			getCurrentData,
 			removeData
 		], function(err, result) {
-			console.log(result);
+			if (err) {
+				console.log(err);
+			} else {
+				// console.log(result);
+			}
 		});
 	},
 	function(callback) {
@@ -67,7 +71,7 @@ async.parallel([
 			if (err) {
 				console.log(err);
 			} else {
-				console.log(result);
+				// console.log(result);
 			}
 		});
 	},
@@ -80,7 +84,7 @@ async.parallel([
 			if (err) {
 				console.log(err);
 			} else {
-				console.log(result);
+				// console.log(result);
 			}
 		});
 	},
@@ -93,7 +97,7 @@ async.parallel([
 			if (err) {
 				console.log(err);
 			} else {
-				console.log(result);
+				// console.log(result);
 			}
 		});
 	},
@@ -106,7 +110,7 @@ async.parallel([
 			if (err) {
 				console.log(err);
 			} else {
-				console.log(result);
+				// console.log(result);
 			}
 		});
 	}
@@ -128,13 +132,13 @@ function createJson(language, callback) {
 		path + "/" + language + "/*/*/*/*.html " + path + "/" + language + "/*/*/*.html " + path + "/" + language + "/*/*.html  --output /tmp/" + language + " --verbose");
 
 	child.stdout.on('data', function(data) {
-		console.log('stdout: ' + data);
+		// console.log('stdout: ' + data);
 	});
 	child.stderr.on('data', function(data) {
-		console.log('stdout: ' + data);
+		// console.log('stdout: ' + data);
 	});
 	child.on('close', function(code) {
-		console.log('closing code: ' + code);
+		// console.log('closing code: ' + code);
 		callback(null);
 	});
 }
@@ -201,7 +205,7 @@ function getCurrentData(version, callback) {
 	};
 	csdSearch.search(searchParams, function(err, data) {
 		if (err) {
-			console.log(err, err.stack);
+			callback(err, null);
 		} else {
 			callback(null, data, version);
 		}
@@ -250,7 +254,7 @@ function pruneContent(results) {
 
 	results.forEach(function(result) {
 		if ((result.fields.url).includes(enquiriesFolder) || (result.fields.url).includes(termsFolder) || (result.fields.url).includes(privacyFolder)) {
-			console.log('pruning folders');
+			// console.log('pruning folders');
 		} else {
 			prunedArray.push(result);
 		}
