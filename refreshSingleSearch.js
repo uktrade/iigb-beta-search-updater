@@ -271,7 +271,7 @@ function addTimestamp(params, callback) {
 
 	for (var i = 0; i < newDocs.length; i++) {
 		var url = newDocs[i].fields.url;
-		console.log(newDocs[i]);
+		// console.log(newDocs[i]);
 		newDocs[i].id = url + newDocs[i].fields.timestamp;
 		array.push(newDocs[i]);
 	}
