@@ -185,13 +185,13 @@ function uploadNewIndex(language, newdata, callback) {
 	} else if (language == 'in') {
 		csdUpload.uploadDocuments(indexedData, function(err, data) {
 			if (err) console.log(err, err.stack); // an error occurred
-			else console.log("added new us data to index");
+			else console.log("added new in data to index");
 			callback(null, version);
 		});
 	} else if (language == 'int') {
 		csdUpload.uploadDocuments(indexedData, function(err, data) {
 			if (err) console.log(err, err.stack); // an error occurred
-			else console.log("added new us data to index");
+			else console.log("added new int data to index");
 			callback(null, version);
 		});
 	}
