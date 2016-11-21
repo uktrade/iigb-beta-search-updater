@@ -20,8 +20,8 @@ Environment Variables Set for:
 
 - AWS_CS_SEARCH;
 - AWS_CS_UPLOAD;
-- AWS_ACCESS_KEY_ID_IIGB_SEARCH_UPDATER;
-- AWS_SECRET_ACCESS_KEY_IIGB_SEARCH_UPDATER;
+- AWS_ACCESS_KEY_ID;
+- AWS_SECRET_ACCESS_KEY;
 
 
 You'll need both search permission and document upload permission.
