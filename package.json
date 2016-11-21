@@ -1,5 +1,5 @@
 {
-  "name": "iigb-search-updater",
+  "name": "iigb-beta-search-updater",
   "version": "1.0.0",
   "description": "Utility app for managing IIGB search indexes",
   "main": "refreshSearch.js",
