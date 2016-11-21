@@ -20,7 +20,7 @@ Environment Variables Set for:
 
 - AWS_CS_SEARCH;
 - AWS_CS_UPLOAD;
-- AWS_ACCESS_KEY_ID_IIGB;
+- AWS_ACCESS_KEY_ID;
 - AWS_SECRET_ACCESS_KEY;
 
 
