@@ -215,7 +215,7 @@ function pruneContent(results) {
 	var prunedArray = [];
 
 	results.forEach(function(result) {
-		if ((result.fields.url).includes(enquiriesFolder) || (result.fields.url).includes(termsFolder) || (result.fields.url).includes(privacyFolder)) {
+		if ((result.fields.url).includes(enquiriesFolder) || (result.fields.url).includes(termsFolder) || (result.fields.url).includes(privacyFolder) || result.fields.pagetitle === '') {
 			console.log('pruning unwanted data');
 		} else {
 			prunedArray.push(result);
