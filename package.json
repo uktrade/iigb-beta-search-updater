@@ -4,7 +4,7 @@
   "description": "Utility app for managing IIGB search indexes",
   "main": "refreshSearch.js",
   "scripts": {
-    "start": "npm install && node refreshSearch.js",
+    "start": "",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Aaron Witter",
